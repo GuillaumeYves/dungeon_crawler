@@ -1,0 +1,16 @@
+<h1>Dungeon Stage <%= @character.dungeon_stage %></h1>
+<p>You have encountered a <%= @monster.name %> in the dungeon!</p>
+<p>Stats:</p>
+<ul>
+  <li>Health: <%= @monster.health %></li>
+  <li>Physical Damage: <%= @monster.min_physical_damage %> - <%= @monster.max_physical_damage %></li>
+  <li>Magic Damage: <%= @monster.min_magic_damage %> - <%= @monster.max_magic_damage %></li>
+  <li>Armor: <%= @monster.armor %></li>
+  <li>Magic Resistance: <%= @monster.magic_resistance %></li>
+</ul>
+
+<br>
+
+<%= link_to "Fight", fight_character_path(@character, monster_id: session[:monster_id]) %>
+
+

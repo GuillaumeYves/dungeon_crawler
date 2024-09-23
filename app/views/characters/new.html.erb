@@ -1,0 +1,31 @@
+<h1 class="text-2xl font-bold mb-4">Create a New Character</h1>
+
+<%= form_with(model: @character, local: true) do |form| %>
+  <% if @character.errors.any? %>
+    <div id="error_explanation" class="mb-4 p-4 border border-red-500 rounded-md bg-red-100">
+      <h2 class="text-lg font-medium text-red-600">
+        <%= pluralize(@character.errors.count, "error") %> prohibited this character from being saved:
+      </h2>
+
+      <ul class="list-disc pl-5 mt-2 text-red-600">
+        <% @character.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-4">
+    <%= form.label :name, class: 'block text-sm font-medium text-gray-700' %>
+    <%= form.text_field :name, class: 'mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm' %>
+  </div>
+
+  <div class="mb-4">
+    <%= form.label :character_class, class: 'block text-sm font-medium text-gray-700' %>
+    <%= form.select :character_class, options_for_select(['warrior', 'mage', 'rogue'], @character.character_class), { include_blank: 'Select Class' }, { class: 'mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm' } %>
+  </div>
+
+  <div class="mb-4">
+    <%= form.submit 'Create Character', class: 'w-full bg-indigo-600 text-white py-2 px-4 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500' %>
+  </div>
+<% end %>

@@ -1,0 +1,103 @@
+<div class="status">
+  <div class="health-bar-container">
+    <h2><%= @character.name %></h2>
+    <p>Health: <%= @character.health %> / <%= @character.max_health %></p>
+    <div class="health-bar">
+      <div class="health" id="player-health-bar" style="width: <%= (@character.health.to_f / @character.max_health) * 100 %>%;"></div>
+    </div>
+
+    <h2><%= @monster.name %></h2>
+    <p>Health: <%= session[:monster_health] %> / <%= @monster.max_health %></p>
+    <div class="health-bar">
+      <div class="health" id="monster-health-bar" style="width: <%= (session[:monster_health].to_f / @monster.max_health) * 100 %>%;"></div>
+    </div>
+  </div>
+</div>
+
+<br>
+
+<% if @result.present? %>
+  <div class="result">
+    <p id="battle-result"><%= @result %></p>
+    <%= link_to "Continue", dungeon_character_path(@character) %>
+  </div>
+<% end %>
+
+<br>
+
+<div class="messages">
+  <% session[:messages].each do |msg| %>
+    <%= msg %>
+    <hr>
+  <% end %>
+</div>
+
+<br>
+
+<div id="actions" class="flex space-x-4">
+  <% if session[:turn] == "character" && @character.health > 0 && session[:monster_health] > 0 %>
+    <%= form_with url: take_turn_character_path(@character), method: :post do %>
+      <%= hidden_field_tag :action_type, "attack" %>
+      <%= submit_tag "Attack", class: "btn" %>
+    <% end %>
+  <br>
+  <button id="spells-button" class="btn">Spells</button>
+  <div id="spells-list" style="display: none;">
+    <% @character.spells.where(unlocked: true).each do |spell| %>
+      <div>
+        <span><%= spell.name %><br>
+        Mana Cost: <%= spell.mana_cost %><br>
+        Cooldown: <%= spell.cooldown > 0 ? spell.cooldown : 'Ready' %></span>
+        <% if @character.cannot_cast?(spell) %>
+          <% if spell.cooldown > 0 %>
+            <p>(On cooldown for <%= spell.cooldown %> turns)</p>
+          <% elsif @character.mana < spell.mana_cost %>
+            <p>(Not enough mana)</p>
+          <% end %>
+        <% else %>
+          <%= form_with url: take_turn_character_path(@character), method: :post do %>
+            <%= hidden_field_tag :action_type, "spell" %>
+            <%= hidden_field_tag :spell_name, spell.name %>
+            <%= submit_tag "Cast #{spell.name}", class: "btn" %>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+  <br>
+  <%= form_with url: take_turn_character_path(@character), method: :post do %>
+    <%= hidden_field_tag :action_type, "flee" %>
+    <%= submit_tag "Flee", class: "btn" %>
+  <% end %>
+  <% end %>
+</div>
+
+
+<script>
+  const playerHealthBar = document.getElementById("player-health-bar");
+  const monsterHealthBar = document.getElementById("monster-health-bar");
+
+  const currentPlayerHealth = <%= @character.health %>;
+  const currentMonsterHealth = <%= session[:monster_health] %>;
+
+  const playerHealthPercent = (currentPlayerHealth / <%= @character.max_health %>) * 100;
+  const monsterHealthPercent = (currentMonsterHealth / <%= @monster.max_health %>) * 100;
+
+  playerHealthBar.style.width = playerHealthPercent + "%";
+  monsterHealthBar.style.width = monsterHealthPercent + "%";
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const spellsButton = document.getElementById("spells-button");
+    const spellsList = document.getElementById("spells-list");
+
+    spellsButton.addEventListener("click", function() {
+      if (spellsList.style.display === "none") {
+        spellsList.style.display = "block";
+      } else {
+        spellsList.style.display = "none"; 
+      }
+    });
+  });
+</script>

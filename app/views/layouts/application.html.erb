@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "dungeon_crawler" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+    <%= stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+<body class="bg-gray-100 text-gray-900">
+  <header class="bg-indigo-600 text-white py-4">
+    <div class="container mx-auto flex justify-between items-center">
+      <%= link_to 'Dungeon Crawler', root_path, class: 'text-2xl font-bold' %>
+      <nav class="space-x-4">
+        <% if user_signed_in? %>
+          <%= link_to 'Characters', characters_path, class: 'hover:underline' %>
+          <%= link_to 'Log Out', destroy_user_session_path, method: :delete, class: 'hover:underline' %>
+        <% else %>
+          <%= link_to 'Log In', new_user_session_path, class: 'hover:underline' %>
+          <%= link_to 'Sign Up', new_user_registration_path, class: 'hover:underline' %>
+        <% end %>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container mx-auto my-8">
+    <%= yield %>
+  </main>
+</html>

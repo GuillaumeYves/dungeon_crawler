@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  health: 
+  max_health: 
+  min_physical_damage: 
+  max_physical_damage: 
+  min_magic_damage: 
+  max_magic_damage: 
+  armor: 
+  magic_resistance: 
+
+two:
+  name: MyString
+  health: 
+  max_health: 
+  min_physical_damage: 
+  max_physical_damage: 
+  min_magic_damage: 
+  max_magic_damage: 
+  armor: 
+  magic_resistance: 

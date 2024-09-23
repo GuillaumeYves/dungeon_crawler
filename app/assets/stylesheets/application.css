@@ -1,0 +1,72 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS (and SCSS, if configured) file within this directory, lib/assets/stylesheets, or any plugin's
+ * vendor/assets/stylesheets directory can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the bottom of the
+ * compiled file so the styles you add here take precedence over styles defined in any other CSS
+ * files in this directory. Styles in this file should be added after the last require_* statement.
+ * It is generally better to create a new file per style scope.
+ *
+ *= require_tree .
+ *= require_self
+ */
+/* Basic styling for health indicators */
+#player-health, #monster-health {
+    font-size: 18px;
+    margin: 10px 0;
+  }
+  
+  /* Animations */
+  @keyframes attack-animation {
+    0% { transform: translateX(0); }
+    50% { transform: translateX(-20px); } /* Move character slightly forward */
+    100% { transform: translateX(0); }
+  }
+  
+  @keyframes damage-flash {
+    0% { background-color: transparent; }
+    50% { background-color: red; }
+    100% { background-color: transparent; }
+  }
+  
+  #player-character, #monster-character {
+    display: inline-block;
+    position: relative;
+  }
+  
+  .attack {
+    animation: attack-animation 0.3s ease-in-out;
+  }
+  
+  .damage {
+    animation: damage-flash 0.5s ease-in-out;
+  }
+  
+  /* Health bar update */
+  .smooth-health {
+    transition: width 0.5s ease;
+  }
+  
+  .health-bar-container {
+    margin: 10px 0;
+  }
+  
+  .health-bar {
+    background-color: #ddd;
+    width: 100%;
+    height: 20px;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  
+  .health {
+    height: 100%;
+    background-color: green;
+    width: 100%;
+    transition: width 0.5s ease-in-out;
+  }
+  

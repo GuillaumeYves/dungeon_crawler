@@ -1,0 +1,22 @@
+<h1 class="text-2xl font-bold mb-4">Your Characters</h1>
+
+<% if @characters.any? %>
+  <ul class="space-y-4">
+    <% @characters.each do |character| %>
+      <li class="flex items-center justify-between p-4 border border-gray-200 rounded-md shadow-sm">
+        <div>
+          <h2 class="text-xl font-semibold">
+            <%= link_to character.name, character_path(character), class: 'text-indigo-600 hover:text-indigo-800' %>
+          </h2>
+          <p class="text-gray-600">Class: <%= character.character_class.capitalize %></p>
+        </div>
+      </li>
+        <%= form_with(model: character, url: character_path(character), method: :delete, local: true) do |form| %>
+          <%= form.button 'Delete', class: "btn btn-outline-danger", data: { confirm: 'Are you sure?' } %>
+        <% end %>
+    <% end %>
+  </ul>
+  <p class="text-gray-600"><%= link_to 'Create new', new_character_path, class: 'text-indigo-600 hover:text-indigo-800' %></p>
+<% else %>
+  <p class="text-gray-600">You have no characters yet. <%= link_to 'Create one', new_character_path, class: 'text-indigo-600 hover:text-indigo-800' %></p>
+<% end %>
