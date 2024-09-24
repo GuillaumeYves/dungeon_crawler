@@ -12,7 +12,7 @@ class Character < ApplicationRecord
   has_one :legs, class_name: "Item"
   has_one :feet, class_name: "Item"
 
-  has_and_belongs_to_many :spells
+  has_many :spells, dependent: :destroy
 
   attr_accessor :frenzy_stacks, :frenzy_damage
 
@@ -31,9 +31,20 @@ class Character < ApplicationRecord
   def level_up
     while self.experience >= self.max_experience
       self.level += 1
+      self.skill_points += 1
+      overflow_experience = self.experience - self.max_experience
       self.max_experience = (self.max_experience * 1.22).to_i
-      self.experience -= self.max_experience
+      self.experience = overflow_experience
     end
+    self.save
+  end
+
+  def gain_experience(xp_gain)
+    self.experience += xp_gain
+    while self.experience >= self.max_experience
+      self.level_up
+    end
+
     self.save
   end
 
@@ -53,7 +64,13 @@ class Character < ApplicationRecord
   end
 
   def assign_spells_based_on_class
-    self.spells = Spell.where(class_required: self.character_class)
+    base_spells = Spell.where(class_required: self.character_class)
+
+    self.spells = base_spells.map do |spell|
+      duplicated_spell = spell.dup
+      duplicated_spell.character_id = self.id
+      duplicated_spell.save
+    end
   end
 
   def cannot_cast?(spell)

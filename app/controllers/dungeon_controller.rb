@@ -24,26 +24,37 @@ class DungeonController < ApplicationController
 
   def take_turn
     @character.turn_start_reduce_cooldowns
+
     case params[:action_type]
     when "attack"
       character_attack
-      handle_battle_outcomes
+      if handle_battle_outcomes # Check if the battle is resolved
+        render :fight and return
+      end
       toggle_turn
       monster_attack if session[:monster_health] > 0
-      handle_battle_outcomes
+      if handle_battle_outcomes # Check again after the monster's attack
+        render :fight and return
+      end
     when "spell"
       character_spellcast
-      handle_battle_outcomes
+      if handle_battle_outcomes # Check if the battle is resolved
+        render :fight and return
+      end
       toggle_turn
       monster_attack if session[:monster_health] > 0
-      handle_battle_outcomes
+      if handle_battle_outcomes # Check again after the monster's attack
+        render :fight and return
+      end
     when "flee"
       @result = "You fled from the battle!"
       redirect_to dungeon_character_path(@character) and return
     end
+
     toggle_turn
     render :fight
   end
+
 
   private
 
@@ -130,8 +141,8 @@ class DungeonController < ApplicationController
         if spell.name == "Frenzy"
           damage_roll = ((rand(@character.min_physical_damage..@character.max_physical_damage) + spell.damage + session[:frenzy_damage])).to_i
           unless session[:frenzy_stacks] >= 5
-              session[:frenzy_damage] += 5
               session[:frenzy_stacks] += 1
+              session[:frenzy_damage] += spell.damage
           end
         end
       if rand(0..100) <= @character.critical_strike_chance
@@ -163,10 +174,10 @@ class DungeonController < ApplicationController
 
   def handle_battle_outcomes
     if session[:monster_health] <= 0
-      xp_gain = (@character.max_experience * 0.10).to_i
-      @character.level_up
+      xp_gain = (100 * (0.98 ** (@character.level - 1))).to_i
+      @character.gain_experience(xp_gain)
       @result = "Victory! You defeated the #{@monster.name}!"
-      @character.update(experience: @character.experience + xp_gain)
+      session[:messages] << "You gained #{xp_gain} experience!"
       @character.update(dungeon_stage: @character.dungeon_stage + 1)
       session[:turn] = nil
       return true

@@ -21,6 +21,7 @@ Rails.application.routes.draw do
       get "fight", to: "dungeon#fight", as: :fight
       post "take_turn", to: "dungeon#take_turn", as: :take_turn
       post :heal
+      patch "upgrade_spell", to: "characters#upgrade_spell"
     end
   end
 end

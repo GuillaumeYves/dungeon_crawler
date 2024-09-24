@@ -1,3 +1,7 @@
+<%= link_to "Enter Dungeon", dungeon_character_path(@character), class: "btn" %>
+
+<br>
+
 <h1 class="text-2xl font-bold mb-4"><%= @character.name %></h1>
 <h2 class="text-2xl font-bold mb-4">Level <%= @character.level %> <%= @character.character_class %></h2>
 <% xp_percentage = (@character.experience.to_f / @character.max_experience * 100).round(2) %>
@@ -8,6 +12,7 @@
 <p>XP Progress: <%= xp_percentage %> %</p>
 <p style="color: black; padding-left: 10px;"><%= @character.experience %> / <%= @character.max_experience %> XP</p>
 
+<br>
 
 <p class="text-gray-600">Health: <%= @character.health %> / <%= @character.max_health %></p>
 <p class="text-gray-600">Mana: <%= @character.mana %> / <%= @character.max_mana %></p>
@@ -29,4 +34,32 @@
 
 <br>
 
-<%= link_to "Enter Dungeon", dungeon_character_path(@character), class: "btn" %>
+<h2><%= @character.name %>'s Spells</h2>
+<p>Skill Points Available: <%= @character.skill_points %></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Spell</th>
+      <th>Damage</th>
+      <th>Mana Cost</th>
+      <th>Upgrade</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @spells.each do |spell| %>
+      <tr>
+        <td><%= spell.name %>(<%= spell.rank %>)</td>
+        <td><%= spell.damage %></td>
+        <td><%= spell.mana_cost %></td>
+        <td>
+          <% if spell.rank < 5 %>
+            <%= button_to "Upgrade", upgrade_spell_character_path(@character, spell_id: spell.id), method: :patch, class: "btn" %>
+          <% else %>
+            <span>Max Rank</span>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

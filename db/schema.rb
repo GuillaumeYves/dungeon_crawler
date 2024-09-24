@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_23_180232) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_24_190801) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -44,6 +44,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_23_180232) do
     t.bigint "mana", default: 100
     t.bigint "max_mana", default: 100
     t.bigint "level", default: 1
+    t.integer "skill_points", default: 0
+    t.integer "spell_id"
     t.index ["chest_id"], name: "index_characters_on_chest_id"
     t.index ["feet_id"], name: "index_characters_on_feet_id"
     t.index ["head_id"], name: "index_characters_on_head_id"
@@ -109,6 +111,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_23_180232) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "base_cooldown"
+    t.integer "rank", default: 1
+    t.integer "character_id"
   end
 
   create_table "users", force: :cascade do |t|
