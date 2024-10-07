@@ -28,22 +28,22 @@ class DungeonController < ApplicationController
     case params[:action_type]
     when "attack"
       character_attack
-      if handle_battle_outcomes # Check if the battle is resolved
+      if handle_battle_outcomes
         render :fight and return
       end
       toggle_turn
       monster_attack if session[:monster_health] > 0
-      if handle_battle_outcomes # Check again after the monster's attack
+      if handle_battle_outcomes
         render :fight and return
       end
     when "spell"
       character_spellcast
-      if handle_battle_outcomes # Check if the battle is resolved
+      if handle_battle_outcomes
         render :fight and return
       end
       toggle_turn
       monster_attack if session[:monster_health] > 0
-      if handle_battle_outcomes # Check again after the monster's attack
+      if handle_battle_outcomes
         render :fight and return
       end
     when "flee"
@@ -180,6 +180,8 @@ class DungeonController < ApplicationController
       session[:messages] << "You gained #{xp_gain} experience!"
       @character.update(dungeon_stage: @character.dungeon_stage + 1)
       session[:turn] = nil
+      loot = @monster.drop_item_or_scroll(@character)
+      session[:loot] = loot unless loot.empty?
       return true
     elsif @character.health <= 0
       @result = "You were defeated by the #{@monster.name}!"

@@ -1,8 +1,13 @@
 class Character < ApplicationRecord
   belongs_to :user
   before_validation :set_default_stats, if: :new_record?
+  after_create :create_inventory
 
   validates :name, presence: true
+
+  has_one :character_inventory, dependent: :destroy
+  has_many :items, through: :character_inventory
+  has_many :scrolls, through: :character_inventory
 
   # Equipment slots
   has_one :main_hand, class_name: "Item"
@@ -15,6 +20,10 @@ class Character < ApplicationRecord
   has_many :spells, dependent: :destroy
 
   attr_accessor :frenzy_stacks, :frenzy_damage
+
+  def create_inventory
+    CharacterInventory.create(character: self)
+  end
 
   CLASS_STATS = {
     "warrior" => { health: 100, max_health: 100, min_physical_damage: 17, max_physical_damage: 22, min_magic_damage: 13,
@@ -63,14 +72,31 @@ class Character < ApplicationRecord
     self.critical_strike_damage = stats[:critical_strike_damage]
   end
 
-  def assign_spells_based_on_class
-    base_spells = Spell.where(class_required: self.character_class)
+  def assign_novice_spells_based_on_class
+    novice_spells = Spell.where(class_required: self.character_class, spell_rank: "novice")
 
-    self.spells = base_spells.map do |spell|
-      duplicated_spell = spell.dup
-      duplicated_spell.character_id = self.id
-      duplicated_spell.save
+    novice_spells.each do |spell|
+      self.spells.reload
+
+      unless self.spells.where(name: spell.name).exists?
+        duplicated_spell = spell.dup
+        duplicated_spell.character_id = self.id
+          if duplicated_spell.save
+            self.spells << duplicated_spell
+          else
+            Rails.logger.error("Failed to save duplicated spell: #{duplicated_spell.errors.full_messages}")
+          end
+      end
     end
+  end
+
+  def learn_scroll(scroll)
+    # Logic to learn the scroll. This could involve adding the scroll's ability, spell, etc., to the character.
+    # For example, if you have a `spells` association, you could do:
+    self.spells << scroll.spell if scroll.spell.present?
+
+    # Optionally, remove the scroll from inventory after learning it:
+    character_inventory.scrolls.destroy(scroll)
   end
 
   def cannot_cast?(spell)
@@ -87,6 +113,14 @@ class Character < ApplicationRecord
         spell.update(cooldown: spell.cooldown - 1)
       end
     end
+  end
+
+  def items
+    self.character_inventory.items
+  end
+
+  def scrolls
+    self.character_inventory.scrolls
   end
 
   def equip(item, slot)

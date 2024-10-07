@@ -1,0 +1,2 @@
+class ScrollsController < ApplicationControllers
+end

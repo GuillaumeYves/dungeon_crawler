@@ -22,6 +22,9 @@ Rails.application.routes.draw do
       post "take_turn", to: "dungeon#take_turn", as: :take_turn
       post :heal
       patch "upgrade_spell", to: "characters#upgrade_spell"
+      post "take_scroll"
+      post "take_item"
+      post "learn_scroll"
     end
   end
 end

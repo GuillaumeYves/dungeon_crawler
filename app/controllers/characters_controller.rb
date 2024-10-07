@@ -15,7 +15,7 @@ class CharactersController < ApplicationController
 
   def create
     @character = current_user.characters.build(character_params)
-    @character.assign_spells_based_on_class
+    @character.assign_novice_spells_based_on_class
     @character.save
     if @character.save
       redirect_to characters_path, notice: "Character was successfully created."
@@ -31,12 +31,11 @@ class CharactersController < ApplicationController
   end
 
   def heal
-    def heal
-      @character = Character.find(params[:id])
-      @character.update(health: @character.max_health)
-      flash[:notice] = "You have healed to full health!"
-      redirect_to character_path(@character)
-    end
+    @character = Character.find(params[:id])
+    @character.update(health: @character.max_health)
+    @character.update(mana: @character.max_mana)
+    flash[:notice] = "You feel refreshed"
+    redirect_to character_path(@character)
   end
 
   def upgrade_spell
@@ -51,6 +50,48 @@ class CharactersController < ApplicationController
       flash[:notice] = "#{spell.name} has been upgraded to rank #{spell.rank}!"
     else
       flash[:alert] = "Cannot upgrade #{spell.name}. Insufficient skill points or already max rank."
+    end
+
+    redirect_to character_path(@character)
+  end
+
+  def take_item
+    @character = Character.find(params[:id])
+    item = Item.find(params[:item_id])
+
+    # Add the item to the character's inventory
+    @character.character_inventory << item
+
+    # Optional: If you want to remove the item from the database after taking it
+    item.destroy
+
+    redirect_to character_path(@character), notice: "#{item.name} has been added to your inventory."
+  end
+
+  def take_scroll
+    @character = Character.find(params[:id])
+    scroll = Scroll.find(params[:scroll_id])
+
+    # Add the scroll to the character's inventory
+    inventory = @character.character_inventory
+
+    scroll.update(character_inventory: inventory)
+
+    redirect_to character_path(@character), notice: "#{scroll.name} has been added to your inventory."
+  end
+
+  def learn_scroll
+    @character = Character.find(params[:id])
+    @scroll = Scroll.find(params[:scroll_id])
+
+    # Ensure character meets the required level to learn the scroll
+    if @character.level >= @scroll.level_required
+      # Logic to learn the scroll (e.g., adding the scroll's spell or ability to the character)
+      # Assuming you have a method to handle learning the scroll
+      @character.learn_scroll(@scroll)
+      flash[:notice] = "#{@scroll.name} has been learned!"
+    else
+      flash[:alert] = "You need to be at least level #{@scroll.level_required} to learn this scroll."
     end
 
     redirect_to character_path(@character)

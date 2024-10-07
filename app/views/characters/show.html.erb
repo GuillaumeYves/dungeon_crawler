@@ -34,13 +34,40 @@
 
 <br>
 
-<h2><%= @character.name %>'s Spells</h2>
+<h2>Inventory</h2>
+<% all_items = @character.character_inventory.items + @character.character_inventory.scrolls %>  <!-- Combine items and scrolls -->
+
+<% if all_items.present? %>
+  <ul>
+    <% all_items.group_by(&:name).each do |item_name, items| %>  <!-- Group items by name -->
+      <li>
+        <%= item_name %>
+        <% if items.count > 1 %>
+          (x<%= items.count %>)
+        <% end %>
+        <% if items.first.is_a?(Scroll) && @character.level >= items.first.level_required %>
+          <%= button_to "Learn #{item_name}", learn_scroll_character_path(@character, scroll_id: items.first.id), method: :post %>
+        <% elsif items.first.is_a?(Scroll) %>
+          <p>You need to be level <%= items.first.level_required %> to learn this scroll.</p>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No items in inventory.</p>
+<% end %>
+
+
+<br>
+
+<h2>Spells :</h2>
 <p>Skill Points Available: <%= @character.skill_points %></p>
 
 <table>
   <thead>
     <tr>
       <th>Spell</th>
+      <th>Description</th>
       <th>Damage</th>
       <th>Mana Cost</th>
       <th>Upgrade</th>
@@ -50,6 +77,7 @@
     <% @spells.each do |spell| %>
       <tr>
         <td><%= spell.name %>(<%= spell.rank %>)</td>
+        <td><%= spell.description %></td>
         <td><%= spell.damage %></td>
         <td><%= spell.mana_cost %></td>
         <td>

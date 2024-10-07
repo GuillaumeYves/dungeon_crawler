@@ -34,6 +34,22 @@
 
 <br>
 
+<% if session[:loot].present? %>
+  <% session[:loot].each do |item| %>
+    <div>
+      <% if item.is_a?(Item) %>
+        <p>You have found <%= item.name %></p>
+        <%= button_to "Take #{item.name}", take_item_character_path(@character, item_id: item.id), method: :post %>
+      <% elsif item.is_a?(Scroll) %>
+        <p>You have found <%= item.name %></p>
+        <%= button_to "Take #{item.name}", take_scroll_character_path(@character, scroll_id: item.id), method: :post %>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
+
+
+
 <div id="actions" class="flex space-x-4">
   <% if session[:turn] == "character" && @character.health > 0 && session[:monster_health] > 0 %>
     <%= form_with url: take_turn_character_path(@character), method: :post do %>
@@ -71,7 +87,6 @@
   <% end %>
   <% end %>
 </div>
-
 
 <script>
   const playerHealthBar = document.getElementById("player-health-bar");

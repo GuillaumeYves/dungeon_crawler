@@ -10,9 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_24_190801) do
+ActiveRecord::Schema[7.2].define(version: 2024_10_07_103613) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "character_inventories", force: :cascade do |t|
+    t.bigint "character_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["character_id"], name: "index_character_inventories_on_character_id"
+  end
 
   create_table "characters", force: :cascade do |t|
     t.string "name"
@@ -78,6 +85,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_190801) do
     t.decimal "critical_strike_damage", precision: 5, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "character_inventory_id", null: true
+    t.index ["character_inventory_id"], name: "index_items_on_character_inventory_id"
   end
 
   create_table "monsters", force: :cascade do |t|
@@ -97,6 +106,19 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_190801) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "scrolls", force: :cascade do |t|
+    t.string "name"
+    t.bigint "spell_id", null: false
+    t.bigint "level_required"
+    t.string "description"
+    t.string "class_required"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "character_inventory_id", null: true
+    t.index ["character_inventory_id"], name: "index_scrolls_on_character_inventory_id"
+    t.index ["spell_id"], name: "index_scrolls_on_spell_id"
+  end
+
   create_table "spells", force: :cascade do |t|
     t.string "name"
     t.string "class_required"
@@ -113,6 +135,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_190801) do
     t.integer "base_cooldown"
     t.integer "rank", default: 1
     t.integer "character_id"
+    t.string "description"
+    t.string "spell_rank"
   end
 
   create_table "users", force: :cascade do |t|
@@ -127,6 +151,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_190801) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "character_inventories", "characters"
   add_foreign_key "characters", "items", column: "chest_id"
   add_foreign_key "characters", "items", column: "feet_id"
   add_foreign_key "characters", "items", column: "head_id"
@@ -134,4 +159,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_24_190801) do
   add_foreign_key "characters", "items", column: "main_hand_id"
   add_foreign_key "characters", "items", column: "off_hand_id"
   add_foreign_key "characters", "users"
+  add_foreign_key "items", "character_inventories"
+  add_foreign_key "scrolls", "character_inventories"
+  add_foreign_key "scrolls", "spells"
 end
